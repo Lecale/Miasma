@@ -1,0 +1,10 @@
+C:\Node\Miasma\bin\Debug\netcoreapp2.0\Miasma.deps.json
+C:\Node\Miasma\bin\Debug\netcoreapp2.0\Miasma.runtimeconfig.json
+C:\Node\Miasma\bin\Debug\netcoreapp2.0\Miasma.runtimeconfig.dev.json
+C:\Node\Miasma\bin\Debug\netcoreapp2.0\Miasma.dll
+C:\Node\Miasma\bin\Debug\netcoreapp2.0\Miasma.pdb
+C:\Node\Miasma\obj\Debug\netcoreapp2.0\Miasma.csproj.CoreCompileInputs.cache
+C:\Node\Miasma\obj\Debug\netcoreapp2.0\Miasma.AssemblyInfoInputs.cache
+C:\Node\Miasma\obj\Debug\netcoreapp2.0\Miasma.AssemblyInfo.cs
+C:\Node\Miasma\obj\Debug\netcoreapp2.0\Miasma.dll
+C:\Node\Miasma\obj\Debug\netcoreapp2.0\Miasma.pdb
