@@ -1,0 +1,14 @@
+C:\Node\Miasma\obj\Debug\netcoreapp3.0\Miasma.csprojAssemblyReference.cache
+C:\Node\Miasma\obj\Debug\netcoreapp3.0\Miasma.AssemblyInfoInputs.cache
+C:\Node\Miasma\obj\Debug\netcoreapp3.0\Miasma.AssemblyInfo.cs
+C:\Node\Miasma\bin\Debug\netcoreapp3.0\Miasma.exe
+C:\Node\Miasma\bin\Debug\netcoreapp3.0\Miasma.deps.json
+C:\Node\Miasma\bin\Debug\netcoreapp3.0\Miasma.runtimeconfig.json
+C:\Node\Miasma\bin\Debug\netcoreapp3.0\Miasma.runtimeconfig.dev.json
+C:\Node\Miasma\bin\Debug\netcoreapp3.0\Miasma.dll
+C:\Node\Miasma\bin\Debug\netcoreapp3.0\Miasma.pdb
+C:\Node\Miasma\bin\Debug\netcoreapp3.0\DotNetZip.dll
+C:\Node\Miasma\bin\Debug\netcoreapp3.0\System.Security.Permissions.dll
+C:\Node\Miasma\obj\Debug\netcoreapp3.0\Miasma.csproj.CopyComplete
+C:\Node\Miasma\obj\Debug\netcoreapp3.0\Miasma.dll
+C:\Node\Miasma\obj\Debug\netcoreapp3.0\Miasma.pdb
