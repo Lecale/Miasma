@@ -133,8 +133,57 @@ namespace Miasma
         else File.Delete(fOut);
 			}
 
+      if(overwritePlayers)
+        using (StreamWriter riter = new StreamWriter(fOut))
+        {
+          riter.WriteLine("= Tournament Name:\t" + name + ",");
+          riter.WriteLine("= Copy Paste the Player information into the sheet,");
+          riter.WriteLine("= PIN , Name, Rating, Club, Country,");
+          riter.WriteLine("= type the number of the round to denote an allocated Bye,");
+          riter.WriteLine("=======================================================");
+          string hdr = "Pin,Name,Rating,Club,Country";
+          string bdy = ",,,,";
+          for (int i = 0; i < nRounds; i++)
+          {
+            hdr = hdr + ",R" + (i + 1);
+            bdy = bdy + ",";
+          }
+          riter.WriteLine(hdr);
+          riter.WriteLine(bdy);
+        }
+      //write or update tournament settings
+      bool overwriteSettings = true;
+			string fSettings = tourDirectory + "settings.txt";
+			if (File.Exists(fSettings))
+			{
+				Console.WriteLine("Settings file already exists - Overwrite it? (yes / no)");
+				if (Console.ReadLine().ToUpper().StartsWith("N"))	overwriteSettings = false;
+				else File.Delete(fSettings);
+			}
+      if(overwriteSettings)
+			  using (StreamWriter riter = new StreamWriter (fSettings)) {
+          riter.WriteLine("Tournament Name:\t" + name);
+          riter.WriteLine("Rounds:\t" + nRounds);
+          riter.WriteLine("Pairing Strategy:\t" + PairingStrategy);
+				  if (TopBar) {
+					  riter.WriteLine ("Top Bar Rating:\t");
+					  riter.WriteLine ("Permit handicap above bar:\tNo");
+				  }
+				  if(RatingFloor) riter.WriteLine ("Rating Floor:\t");
+				  riter.WriteLine ("Handicap Policy:\t"+HandiAdjust);
+				  riter.WriteLine ("Max Handicap:\t"+nMaxHandicap);		
+				  riter.WriteLine ("Grade Width:\t"+nGradeWidth);		
+				  riter.WriteLine ("Tiebreak 1:\tSOS");		
+				  riter.WriteLine ("Tiebreak 2:\t");		
+				  riter.WriteLine ("Tiebreak 3:\t");		
+			  }
+
+      //
       return true;
    }
-
+    public void ReadSettings() 
+    {
+      
+    }
   }
 }
