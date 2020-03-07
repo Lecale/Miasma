@@ -181,9 +181,81 @@ namespace Miasma
       //
       return true;
    }
+
+   public void ReadPlayers(bool Supression=false, bool Initial = false)
+   {
+     if (Initial) awaitText("Please type 'done' when you have finished editing players.txt", true);
+   }
+
+   public void awaitText(string instruction, bool clearConsole=true, string keyPhrase="done")
+   {
+    bool awaiting = true;
+    while (awaiting)
+    {
+      Console.WriteLine(instruction);
+      if (keyPhrase.ToLower().Equals(Console.ReadLine())) awaiting = false;
+    }
+    if (clearConsole) Console.Clear();
+   }
     public void ReadSettings() 
     {
-      
+      char[] ch = { '\t'};
+			string[] s;
+			string dbg="";
+			try {
+			using (StreamReader sr = new StreamReader (tourDirectory + "settings.txt"))
+      {
+        while(sr.EndOfStream == false)
+        {
+          dbg = sr.ReadLine ();
+						if(dbg!=null & dbg.Length > 2)
+            {
+              s =dbg.Split(ch);
+              if(s[0].Contains("Tournament Name")) TournamentName = s[1];
+              if(s[0].Contains("Rounds")) nRounds = int.Parse(s[1].Trim());
+              if(s[0].Contains("Pairing Strategy")) PairingStrategy = s[1].Trim();
+              if(s[0].Contains("Handicap Policy")) HandiAdjust = int.Parse(s[1].Trim());
+							if(s[0].Contains("Max Handicap")) nMaxHandicap = int.Parse(s[1].Trim());
+              if(s[0].Contains("Grade Width")) nGradeWidth = int.Parse(s[1].Trim());
+              if(s[0].Contains("Debug") && s.Length > 1) Verbose = true;
+              if (s[0].Contains("Top Bar Rating"))
+              {
+                nTopBar = int.Parse(s[1].Trim());
+                TopBar = true;
+              }
+              if (s[0].Contains("Rating Floor"))
+              {
+                nRatingFloor = int.Parse(s[1].Trim());
+                RatingFloor = true;
+              }
+              if(s[0].Contains("Permit handicap above bar")){
+	              if (s[1].ToUpper().StartsWith("Y")) HandiAboveBar = true;
+              }
+              if (s[0].Contains("Tiebreak ") && s.Length > 1) 
+              {
+                if (s[1].Trim() != "")
+                {
+                  if (s.Length == 3)  //Tiebreakers applying to END or Pairing
+                  {
+                    TeaBreak = true;    //There is a difference in 2 lists
+                    if(s[2].ToUpper().Equals("END")) EndTiebreakers.Add(s[1].ToUpper());
+                    if (s[2].ToUpper().Equals("PAIR")) Tiebreakers.Add(s[1].ToUpper());
+                  }
+                  else //ALL
+                  {
+                    Tiebreakers.Add(s[1].ToUpper());
+                    EndTiebreakers.Add(s[1].ToUpper());
+                  }
+                }
+              }
+            }
+        }
+      }} catch(Exception e) {
+        Console.WriteLine ("ReadSettings() exception: {0} {1}", dbg, e.InnerException);
+       }
+       //Player.SetTiebreakers(Tiebreakers);
     }
+
   }
+
 }
