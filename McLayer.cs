@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ire
+namespace Miasma
 {
 	public class McLayer
 	{
