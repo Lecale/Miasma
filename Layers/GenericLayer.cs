@@ -7,7 +7,7 @@ namespace Miasma
 	{
 		public float MMSKey;
 		protected List<int> population;
-        protected List<int> stack;
+    protected List<int> stack;
 
 		public GenericLayer (float MMS, int Seed)
 		{
