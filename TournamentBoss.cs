@@ -121,7 +121,7 @@ namespace Miasma
 			}
       Console.WriteLine ("Pairing Strategy (Fold / Split / Adjacent / None)");
 			string pst = Console.ReadLine().ToUpper().Trim();
-			if(pst.Equals("FOLD")) 	PairingStrategy = "Fold";
+			if (pst.Equals("FOLD")) 	PairingStrategy = "Fold";
       if (pst.Equals("SPLIT"))  PairingStrategy = "Split";
       if (pst.Equals("ADJACENT")) PairingStrategy = "Adjacent";
 
