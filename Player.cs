@@ -141,7 +141,7 @@ namespace Miasma
 		public bool getParticipation(int i)
 		{
 			try{
-			return participation[i];}
+			  return participation[i];}
 			catch(Exception e) {
 				Console.WriteLine ("EXCEPTION in getParticipation rnd " + i);
 				Console.WriteLine (e.Message);
@@ -149,18 +149,17 @@ namespace Miasma
 				return false;
 			}
 		}
-        public void setOpponent(int i, int rnd)
-        {
-            opponent[rnd] = i;
-        }
-        public int nBye()
-        {
-            int n =0;
-            for (int i = 0; i < participation.Length; i++)
-                if (!participation[i])
-                    n++;
-            return n;
-        }
+    public void setOpponent(int i, int rnd)
+    {
+      opponent[rnd] = i;
+    }
+    public int nBye()
+    {
+      int n =0;
+      for (int i = 0; i < participation.Length; i++)
+        if (!participation[i]) n++;
+      return n;
+    }
         public string getName()
         {
             return Name;
@@ -205,7 +204,7 @@ namespace Miasma
 			if(EGDPin==p.EGDPin)
 					return true;
 			}
-			catch(Exception e) {
+			catch {
 				return false;
 			}
 			return false;
