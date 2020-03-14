@@ -62,10 +62,8 @@ namespace Miasma
 			if(Verbose) Console.WriteLine ("Calling FoldDraw() start:" + start);
 			bool found = false;
 			for (int i = start+1; i <= plys.Count -1; i++) { //foreachPlayer
-				if (Registry.Contains(plys [i].Seed) == true) {
-					found = true; //should be unreachable
-				}else
-					found =false;
+				if (Registry.Contains(plys [i].Seed) == true) found = true; //should be unreachable
+				else found =false;
 				while (found == false) {
 					foreach (FoldLayer mcl in Fold) { //for each Layer
                         if (found == false) { 

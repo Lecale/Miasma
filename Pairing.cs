@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Miasma
 {
-    public class Pairing
-    {
-        public Player white;
-        public Player black;
-        protected int setting = 0;
-        protected int result = 0;
+  public class Pairing
+  {
+    public Player white;
+    public Player black;
+    protected int setting = 0;
+    protected int result = 0;
 		static int maxHandi;
 		static int defaultPolicy;
 		static bool handAboveBar = false;
@@ -24,63 +24,63 @@ namespace Miasma
 		}
 
 		//should contain some kind of sneaky bye allocation thing
-        public Pairing( Player a, Player b, int _handicap, int _result)
-        {
-            white = a;
-            black = b;
+    public Pairing( Player a, Player b, int _handicap, int _result)
+    {
+      white = a;
+      black = b;
 			setting = _handicap;
-            result = _result;
-        }
+      result = _result;
+    }
 
-        public Pairing(Player a, Player b)
+    public Pairing(Player a, Player b)
+    {
+      Random r = new Random();
+      int coin = r.Next(0, 2) - 1;
+      float rawDiff = Math.Abs(a.getMMS() - b.getMMS());
+      white = a; //save default assignment
+      black = b;
+      if (defaultPolicy == 0) //no handicap
+      {//coin flip
+        if (coin > 0)
         {
-            Random r = new Random();
-            int coin = r.Next(0, 2) - 1;
-            float rawDiff = Math.Abs(a.getMMS() - b.getMMS());
-            white = a; //save default assignment
-            black = b;
-            if (defaultPolicy == 0) //no handicap
-            {//coin flip
-                if (coin > 0)
-                {
-                    white = b;
-                    black = a;
-                }
-            }
-            else
-            { /*handicap_n n=adjustment
+          white = b;
+          black = a;
+        }
+      } 
+      else
+      { /*handicap_n n=adjustment
                * n=0 handi from rawDiff=1
                * n=1 handi from rawDiff=2 etc
                * except if aboveBar stuff is in place
                * Remember 1.5 is treated as 1 according to tradition
                */
-				if(rawDiff>defaultPolicy)
-                {
+			  if(rawDiff>defaultPolicy)
+        {
                    // Console.WriteLine("Pairing:Raw:" + rawDiff + ":DP:" + defaultPolicy);
 					if (handAboveBar==false)
-                    {
-                        if (a.topBar || b.topBar)
-                        { //somebody above bar so flipcoin
-                            if (coin > 0)
-                            {
-                                white = b;
-                                black = a;
-                            }
-                        }
-                        else
-                        {
-                            if (a.getMMS() < b.getMMS())
-                            {
-                                white = b;
-                                black = a;
-                            }
+          {
+            if (a.topBar || b.topBar)
+            { //somebody above bar so flipcoin
+              if (coin > 0)
+              {
+                white = b;
+                black = a;
+              }
+            }
+            else
+            {
+              if (a.getMMS() < b.getMMS())
+              {
+                white = b;
+                black = a;
+              }
 							setting = (int)(rawDiff - defaultPolicy);
-                        }
-                    }
-                    else //handicap allowed above bar
-                    {
-                        if (a.getMMS() < b.getMMS())
-                        {
+            }
+          }
+          else //handicap allowed above bar
+          {
+            if (a.getMMS() < b.getMMS())
+            {
                             white = b;
                             black = a;
                         }
@@ -210,5 +210,5 @@ namespace Miasma
 					return true;
 			return false;
 		}
-    }
+  }
 }
