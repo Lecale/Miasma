@@ -22,28 +22,24 @@ namespace Miasma
 		public DrawMachine2 ( List<Player> ply, List<Pairing> _History, int _Rnd,
 			int _MaxHandi = 9, int _AdjHandi = 1, bool _HandiAboveBar = false, bool _Verbose=false)
 		{
-            Verbose = _Verbose;
+      Verbose = _Verbose;
 			plys.AddRange(ply); //Careful with Byes
-            History = _History;
+      History = _History;
 			lookUpTable = new int[ply.Count];
 			Pairs = new List<Pairing>();
 			Pairing.setStatics(_MaxHandi, _AdjHandi, _HandiAboveBar);
-            foreach (Player pd in plys)
-                if (pd.getParticipation(_Rnd-1))
-                    totalPairs++;
+      foreach (Player pd in plys)
+        if (pd.getParticipation(_Rnd-1)) totalPairs++;
 			List<Player> takingABye = new List<Player> ();
 			foreach (Player pd in plys)
-				if (pd.getParticipation(_Rnd-1) == false) //0 based
-					takingABye.Add(pd); 
+				if (pd.getParticipation(_Rnd-1) == false) takingABye.Add(pd); //0 based 
 			foreach (Player tab in takingABye)
 				plys.Remove (tab);
-            totalPairs = totalPairs / 2;
+      totalPairs = totalPairs / 2;
 			//i want to search for Seed and see player 
-            for (int i = 0; i < plys.Count; i++)
-            {
-				lookUpTable[plys[i].Seed - 1] = i;
-            }
-            //end DO WE NEED
+      for (int i = 0; i < plys.Count; i++)
+        lookUpTable[plys[i].Seed - 1] = i;
+      //end DO WE NEED
 			Fold = new List<FoldLayer>();
 			//populate Fold layers which use Seed and not Deed
 			Fold.Add (new FoldLayer (plys [0].getMMS (), plys [0].Seed));
