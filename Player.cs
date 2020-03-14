@@ -150,9 +150,7 @@ namespace Miasma
 			}
 		}
     public void setOpponent(int i, int rnd)
-    {
-      opponent[rnd] = i;
-    }
+    { opponent[rnd] = i; }
     public int nBye()
     {
       int n =0;
@@ -160,39 +158,32 @@ namespace Miasma
         if (!participation[i]) n++;
       return n;
     }
-        public string getName()
-        {
-            return Name;
-        }
-        public int getRating()
-        {
-            return Rating;
-        }
+    public string getName()
+    {
+        return Name;
+    }
+    public int getRating()
+    { return Rating; }
 		public int getERating()
-		{
-			return eRating;
-		}
+		{ return eRating;	}
 		public void setERating(int _rating)
 		{
 			eRating = _rating;
 		}
 
-        public int getSeed()
-        { return Seed; }
-        public void setTop()
-        { topBar = true; }
+    public int getSeed()
+    { return Seed; }
+    public void setTop()
+    { topBar = true; }
 
-        public int[] GetOpposition() 
-        {
-           return opponent;
-        }
+    public int[] GetOpposition() 
+    { return opponent; }
 
 		#region Override Methods
 
 		public override bool Equals(System.Object obj)
 		{
-			if (obj == null)
-				return false;
+			if (obj == null) return false;
 			try{
 				Player p = (Player) obj;
 

@@ -12,40 +12,38 @@ namespace Miasma
     private List<SplitLayer> _Split;
     private List<Pairing> History = new List<Pairing>(); //previous rounds
     private List<string> Paths = new List<string>();
-        private List<int> Registry = new List<int>();
-        private int[] lookUpTable;
-        private string path = "";
-        private int totalPairs = 0;
-        private bool Verbose = false;
-        #endregion
+    private List<int> Registry = new List<int>();
+    private int[] lookUpTable;
+    private string path = "";
+    private int totalPairs = 0;
+    private bool Verbose = false;
+    #endregion
 
-        public DrawMachine3(List<Player> ply, List<Pairing> _History, int _Rnd,
-            int _MaxHandi = 9, int _AdjHandi = 1, bool _HandiAboveBar = false, bool _Verbose = false)
-        {
-            Verbose = _Verbose;
-            plys.AddRange(ply); //Careful with Byes
-            History = _History;
-            lookUpTable = new int[ply.Count];
-            Pairs = new List<Pairing>();
-            Pairing.setStatics(_MaxHandi, _AdjHandi, _HandiAboveBar);
-           // plys.Sort(); //just in case
-            foreach (Player pd in plys)
-                if (pd.getParticipation(_Rnd - 1))
-                    totalPairs++;
-            List<Player> takingABye = new List<Player>();
-            foreach (Player pd in plys)
-                if (pd.getParticipation(_Rnd - 1) == false) //0 based
-                    takingABye.Add(pd);
-            foreach (Player tab in takingABye)
-                plys.Remove(tab);
-            totalPairs = totalPairs / 2;
-            //i want to search for Seed and see player 
-            for (int i = 0; i < plys.Count; i++)
-            {
-                lookUpTable[plys[i].Seed - 1] = i;
-            }
-            //end DO WE NEED
-            _Split = new List<SplitLayer>();
+    public DrawMachine3(List<Player> ply, List<Pairing> _History, int _Rnd,
+        int _MaxHandi = 9, int _AdjHandi = 1, bool _HandiAboveBar = false, bool _Verbose = false)
+    {
+        Verbose = _Verbose;
+        plys.AddRange(ply); //Careful with Byes
+        History = _History;
+        lookUpTable = new int[ply.Count];
+        Pairs = new List<Pairing>();
+        Pairing.setStatics(_MaxHandi, _AdjHandi, _HandiAboveBar);
+       // plys.Sort(); //just in case
+        foreach (Player pd in plys)
+            if (pd.getParticipation(_Rnd - 1))
+                totalPairs++;
+        List<Player> takingABye = new List<Player>();
+        foreach (Player pd in plys)
+            if (pd.getParticipation(_Rnd - 1) == false) takingABye.Add(pd); //0 based
+        foreach (Player tab in takingABye)
+            plys.Remove(tab);
+        totalPairs = totalPairs / 2;
+        //i want to search for Seed and see player 
+        for (int i = 0; i < plys.Count; i++)
+            lookUpTable[plys[i].Seed - 1] = i;
+        //end DO WE NEED
+        
+        _Split = new List<SplitLayer>();
             //populate Split layers which use Seed and not Deed
             _Split.Add(new SplitLayer(plys[0].getMMS(), plys[0].Seed));
             for (int i = 1; i < plys.Count; i++)
@@ -159,41 +157,38 @@ namespace Miasma
         }
 
 
-        public List<Pairing> GetCurrentPairings()
-        {
-            return Pairs;
-        }
+    public List<Pairing> GetCurrentPairings()
+    { return Pairs; }
 
-        public void AddPairing(List<Pairing> completedRnd)
-        {
-            History.AddRange(completedRnd);
-        }
+    public void AddPairing(List<Pairing> completedRnd)
+    {
+        History.AddRange(completedRnd);
+    }
 
-		public void reInjection(int blockedSeed)
-		{
-			foreach (SplitLayer sl in _Split)
-				if (sl.Contained(blockedSeed))
-				{
-					sl.Push(blockedSeed);
-					return;
-				}
-		}
+	public void reInjection(int blockedSeed)
+	{
+		foreach (SplitLayer sl in _Split)
+			if (sl.Contained(blockedSeed))
+			{
+				sl.Push(blockedSeed);
+				return;
+			}
+	}
 
-        public void CleanBlocked(string END)
-        {
-            List<int> iHold = new List<int>();
-            for (int i = 0; i < Paths.Count - 1; i++)
-                if (Paths[i].StartsWith(END))
-                    iHold.Add(i);
-            for (int j = iHold.Count - 1; j > -1; j--)
-                Paths.RemoveAt(iHold[j]);
-        }
+    public void CleanBlocked(string END)
+    {
+        List<int> iHold = new List<int>();
+        for (int i = 0; i < Paths.Count - 1; i++)
+            if (Paths[i].StartsWith(END))  iHold.Add(i);
+        for (int j = iHold.Count - 1; j > -1; j--) 
+            Paths.RemoveAt(iHold[j]);
+    }
 
-		public void DebugSplit(){
-			foreach (SplitLayer sl in _Split)
-				Console.WriteLine (sl);
-			Console.ReadLine ();
-		}
+	public void DebugSplit(){
+	  foreach (SplitLayer sl in _Split)
+		Console.WriteLine (sl);
+		  Console.ReadLine ();
+	}
   }
 }
 
