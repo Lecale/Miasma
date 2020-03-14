@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 
 namespace Miasma
@@ -25,7 +25,8 @@ namespace Miasma
 
 		public float firstRating = -1; //new tiebreak
     public float secondRating = -1;
-    public int OPERA = 0; //Note the precision //REMOVE THIS
+    public int SODOR = 0; //New tiebreaker
+    public int SOR = 0; //New tiebreaker
 
 		private static List<string> Tiebreaker = new List<string> ();
 		public static bool SortByRating = false;
@@ -272,11 +273,17 @@ namespace Miasma
 							return 1;
 						if (p.MDOS < MDOS)
 							return -1;
-					}if (tie.Equals("OPERA"))
+					}if (tie.Equals("SODOR"))
 					{
-						if (p.OPERA > OPERA)
+						if (p.SODOR > SODOR)
 							return 1;
-						if (p.OPERA < OPERA)
+						if (p.SODOR < SODOR)
+							return -1;
+					}if (tie.Equals("SOR"))
+					{
+						if (p.SOR > SOR)
+							return 1;
+						if (p.SOR < SOR)
 							return -1;
 					}
 				}
@@ -298,7 +305,7 @@ namespace Miasma
 
 		public string ToStore()
 		{
-            return EGDPin + "\t" + Seed + "\t" + initMMS + "\t" + Name;
+      return EGDPin + "\t" + Seed + "\t" + initMMS + "\t" + Name;
 		}
 
 		public string ToFile()
@@ -345,11 +352,10 @@ namespace Miasma
 			return s;
 		}
 
-        public string ToEGF()
-        {
-            string s =  Name + " " + Rank + " " + Country + " " + Club + " "; //EGD identifiers
-	           return s;
-        }
+    public string ToEGF()
+    {
+      return  Name + " " + Rank + " " + Country + " " + Club + " "; //EGD identifiers
+    }
 
 		public string EGFColour(int rnd){
 			if(BlackWhite[rnd]==0)
@@ -358,7 +364,6 @@ namespace Miasma
 		}
 
 		#endregion
-    }
-
+  }
 
 }
