@@ -88,30 +88,30 @@ namespace Miasma
            return f;
     }
 
-        public float getResult(int rnd)
-        {
-            return score[rnd];
-        }
-        public float getScore(int rnd)
-        {
-            float f = 0;
-            for (int i = 0; i < rnd; i++)
-                f += score[i] ;
-            return f;
-        }
-        public float getMMS(int rnd)
-        {
-            return initMMS + getScore(rnd);
-        }
-        public void setMMS(float s)
-        {
-            MMS = s;
-        }
-        public void setInitMMS(float s)
-        {
-            initMMS = s;
-        }
-#endregion
+    public float getResult(int rnd)
+    {
+      return score[rnd];
+    }
+    public float getScore(int rnd)
+    {
+      float f = 0;
+      for (int i = 0; i < rnd; i++)
+        f += score[i] ;
+      return f;
+    }
+    public float getMMS(int rnd)
+    {
+      return initMMS + getScore(rnd);
+    }
+    public void setMMS(float s)
+    {
+      MMS = s;
+    }
+    public void setInitMMS(float s)
+    {
+      initMMS = s;
+    }
+    #endregion
 
 		#region Tiebreak Calculation
 		public int getOpponent(int i)
