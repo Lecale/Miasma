@@ -42,7 +42,7 @@ namespace Miasma
       //end DO WE NEED
 
       _Monrad = new List<MonradLayer>();
-      //populate Split layers which use Seed and not Deed
+      //populate Monrad layers which use Seed and not Deed
       _Monrad.Add(new MonradLayer(plys[0].getMMS(), plys[0].Seed));
       for (int i = 1; i < plys.Count; i++)
       {
@@ -55,135 +55,121 @@ namespace Miasma
       DRAW();
     }
 
-        public void DRAW(int start = 0)
-        {
-            Player top = plys[start];
-            if (Verbose) Console.WriteLine("Calling AdjacentDraw() start: {0}", start);
-            if (Verbose) Console.WriteLine("Memory in use: {0}", GC.GetTotalMemory(true));
-            bool found = false;
-            for (int i = start + 1; i <= plys.Count - 1; i++)
-            { //foreachPlayer
-                if (Registry.Contains(plys[i].Seed) == true)
-                {
-                    found = true; //to check - why this is necessary in current code
-                }
-                else
-                    found = false;
-                while (found == false)
-                {
-                    foreach (MonradLayer mcl in _Monrad)
-                    { //for each Layer
-                        if (found == false)
-                        {
+    public void DRAW(int start = 0)
+    {
+        Player top = plys[start];
+        if (Verbose) Console.WriteLine("Calling AdjacentDraw() start: {0}", start);
+        if (Verbose) Console.WriteLine("Memory in use: {0}", GC.GetTotalMemory(true));
+        bool found = false;
+        for (int i = start + 1; i <= plys.Count - 1; i++)
+        { //foreachPlayer
+            if (Registry.Contains(plys[i].Seed) == true)
+                found = true; //to check - why this is necessary in current code
+            else
+                found = false;
+            while (found == false)
+            {
+                foreach (MonradLayer mcl in _Monrad)
+                { //for each Layer
+                    if (found == false)
+                    {
                             // NEW LOGIC
                             // request suggestions and browse for valid
                             // if find valid, Eject it
                             // 
-                            string test;
-                            lSuggestions = mcl.Offer(top.Seed, top.GetOpposition()); //not self, not history
-                            foreach (int ls in lSuggestions)
-                            {
-                                if (Verbose) Console.WriteLine("Suggesting {0}" , ls);
-                                test = path + " " + top.Seed + "," + ls;
+                        string test;
+                        lSuggestions = mcl.Offer(top.Seed, top.GetOpposition()); //not self, not history
+                        foreach (int ls in lSuggestions)
+                        {
+                            if (Verbose) Console.WriteLine("Suggesting {0}" , ls);
+                            test = path + " " + top.Seed + "," + ls;
                                 //if not a blocked path AND not a registered suggestion
-                                if (Paths.Contains(test) == false && Registry.Contains(ls) == false)
-                                {
-                                    found = true;
-                                    Pairs.Add(new Pairing(top, plys[lookUpTable[ls - 1]]));
-                                    path += " " + top.Seed + "," + plys[lookUpTable[ls - 1]].Seed;
-                                    mcl.Eject(ls);
-                                    for (int ie = 0; ie < _Monrad.Count; ie++) //we had forgotten to eject Top
-                                        if (_Monrad[ie].Contains(top.Seed) == true)
-                                        {
-                                            _Monrad[ie].Eject(top.Seed);
-                                            i = _Monrad.Count + 11;
-                                        }
-                                    if (Pairs.Count == totalPairs)
-                                        return; //best way to exit
+                            if (Paths.Contains(test) == false && Registry.Contains(ls) == false)
+                            {
+                                found = true;
+                                Pairs.Add(new Pairing(top, plys[lookUpTable[ls - 1]]));
+                                path += " " + top.Seed + "," + plys[lookUpTable[ls - 1]].Seed;
+                                mcl.Eject(ls);
+                                for (int ie = 0; ie < _Monrad.Count; ie++) //we had forgotten to eject Top
+                                    if (_Monrad[ie].Contains(top.Seed) == true)
+                                    {
+                                        _Monrad[ie].Eject(top.Seed);
+                                        i = _Monrad.Count + 11;
+                                    }
+                                if (Pairs.Count == totalPairs)  return; //best way to exit
                                     //Set to true the registered state of top and choice
-                                    Registry.Add(top.Seed);
-                                    Registry.Add(plys[lookUpTable[ls - 1]].Seed);
+                                Registry.Add(top.Seed);
+                                Registry.Add(plys[lookUpTable[ls - 1]].Seed);
                                     //find next top
-                                    for (int rp = 0; rp < plys.Count; rp++)
-                                        if (Registry.Contains(plys[rp].Seed) == false)
-                                        {
-                                            top = plys[rp];
-                                            i = start; // overkill
-                                            rp = plys.Count + 4;
-                                        }
-                                    if (Verbose) Console.WriteLine("Blocked Path: {0}", path);
-                                    if (Verbose) DebugMonrad();
-                                    break;
-                                }
-                            }//end foreach suggestion
-                        }
-                    }//foreachLayer
-
-                    if (found == false)
-                    {
-                        if (Pairs.Count == totalPairs) //should be unreachable
-                            return;
-                        // Console.WriteLine("No valid pairing was found. Retry.");
-                        //add to block
-                        Console.WriteLine(path);
-                        string sp = path;
-                        Paths.Add(sp);
-                        CleanBlocked(sp);
-                        int penultimateSpace = path.LastIndexOf(" ");
-                        if (penultimateSpace > 1)
-                            path = path.Remove(penultimateSpace);
-                        else
-                            Console.WriteLine("path cannot be removed as too small");//should be unreachable
-
-                        //reInject (Push) Seeds
-                        reInjection(Pairs[Pairs.Count - 1].black.Seed);
-                        reInjection(Pairs[Pairs.Count - 1].white.Seed);
-                        //update lookups
-                        Registry.Remove(Pairs[Pairs.Count - 1].black.Seed);
-                        Registry.Remove(Pairs[Pairs.Count - 1].white.Seed);
-                        //Purge from Pairs
-                        Pairs.RemoveAt(Pairs.Count - 1);
-
-                        for (int rp = 0; rp < plys.Count; rp++)
-                            if (Registry.Contains(plys[rp].Seed) == false)
-                                DRAW(rp);
-
+                                for (int rp = 0; rp < plys.Count; rp++)
+                                    if (Registry.Contains(plys[rp].Seed) == false)
+                                    {
+                                        top = plys[rp];
+                                        i = start; // overkill
+                                        rp = plys.Count + 4;
+                                    }
+                                if (Verbose) Console.WriteLine("Blocked Path: {0}", path);
+                                if (Verbose) DebugMonrad();
+                                break;
+                            }
+                        }//end foreach suggestion
                     }
-                }
+                }//foreachLayer
 
-            }//end foreachplayer
-        }
-
-
-        public List<Pairing> GetCurrentPairings()
-        {
-            return Pairs;
-        }
-
-        public void AddPairing(List<Pairing> completedRnd)
-        {
-            History.AddRange(completedRnd);
-        }
-
-        public void reInjection(int blockedSeed)
-        {
-            foreach (MonradLayer ml in _Monrad)
-                if (ml.Contained(blockedSeed))
+                if (found == false)
                 {
-                    ml.Push(blockedSeed);
-                    return;
-                }
-        }
+                    if (Pairs.Count == totalPairs) return; //should be unreachable
+                        //add to block
+                    Console.WriteLine(path);
+                    string sp = path;
+                    Paths.Add(sp);
+                    CleanBlocked(sp);
+                    int penultimateSpace = path.LastIndexOf(" ");
+                    if (penultimateSpace > 1)   path = path.Remove(penultimateSpace);
+                    else    Console.WriteLine("path cannot be removed as too small"); //should be unreachable
+                        //reInject (Push) Seeds
+                    reInjection(Pairs[Pairs.Count - 1].black.Seed);
+                    reInjection(Pairs[Pairs.Count - 1].white.Seed);
+                        //update lookups
+                    Registry.Remove(Pairs[Pairs.Count - 1].black.Seed);
+                    Registry.Remove(Pairs[Pairs.Count - 1].white.Seed);
+                        //Purge from Pairs
+                    Pairs.RemoveAt(Pairs.Count - 1);
 
-        public void CleanBlocked(string END)
-        {
-            List<int> iHold = new List<int>();
-            for (int i = 0; i < Paths.Count - 1; i++)
-                if (Paths[i].StartsWith(END))
-                    iHold.Add(i);
-            for (int j = iHold.Count - 1; j > -1; j--)
-                Paths.RemoveAt(iHold[j]);
-        }
+                    for (int rp = 0; rp < plys.Count; rp++)
+                        if (Registry.Contains(plys[rp].Seed) == false)
+                            DRAW(rp);
+
+                }
+            }
+        }//end foreachplayer
+    }
+
+    public List<Pairing> GetCurrentPairings()
+    {   return Pairs;   }
+
+    public void AddPairing(List<Pairing> completedRnd)
+    {   History.AddRange(completedRnd); }
+
+    public void reInjection(int blockedSeed)
+    {
+        foreach (MonradLayer ml in _Monrad)
+            if (ml.Contained(blockedSeed))
+            {
+                ml.Push(blockedSeed);
+                return;
+            }
+    }
+
+    public void CleanBlocked(string END)
+    {
+        List<int> iHold = new List<int>();
+        for (int i = 0; i < Paths.Count - 1; i++)
+            if (Paths[i].StartsWith(END))
+                iHold.Add(i);
+        for (int j = iHold.Count - 1; j > -1; j--)
+            Paths.RemoveAt(iHold[j]);
+    }
 
     public void DebugMonrad()
     {

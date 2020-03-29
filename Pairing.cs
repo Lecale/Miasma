@@ -110,7 +110,7 @@ namespace Miasma
         public void SetResult(int r)
         { result = r; }
 
-        public string BasicOutput()
+    public string BasicOutput()
         {
             string s;
             switch (result){
