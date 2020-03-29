@@ -6,4 +6,4 @@ It is also my intention to add a bit of Nim inside the workings.
 
 New Tiebreakers
 Some will be renamed, some will be added
-SODOR and SOR are ratings based and new
+SODOR and SOR are the new, ratings based, tiebreakers

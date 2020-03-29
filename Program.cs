@@ -6,6 +6,8 @@ namespace Miasma
 {
     class Program
     {
+        public static TournamentBoss tb;
+
         static void Main(string[] args)
         {
             Console.BackgroundColor = ConsoleColor.Black;
@@ -13,7 +15,7 @@ namespace Miasma
             Console.WriteLine("Miasma has loaded");
             Console.WriteLine("1: Create New Tournament");
             Console.WriteLine("2: Load Tournament");
-            Console.WriteLine("3: Update Player File");
+            Console.WriteLine("3: Update Registered Players File");
             int choice = Listen(3);
             switch (choice)
             {
@@ -41,7 +43,20 @@ namespace Miasma
         [DllImport("HelloNim.dll")]
         public static extern void HelloDim(int a);
 
-        
+        static void newTournament()
+        {
+            tb = new TournamentBoss();
+            bool newT = tb.GenerateTemplateInputFile();
+            if(newT == false)   RestoreTournament(true);
+            int startRound = 1;
+        }
+
+        static void RestoreTournament(bool redirection=false)
+        {
+            if(redirection==false)  tb = new TournamentBoss();
+        }
+
+
     static private int Listen(int choices = 1)
     {
         bool loop = true;

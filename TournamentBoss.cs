@@ -29,11 +29,11 @@ namespace Miasma
 		  int nRatingFloor = 100;
 		  int nGradeWidth = 100; //to take from Settings
 		  string PairingStrategy = "None";
-    /* List<Player> AllPlayers = new List<Player>();
+     List<Player> AllPlayers = new List<Player>();
 		List<Player> RoundPlayers;
 		List<Pairing> AllPairings = new List<Pairing> ();
 		List<Pairing> RoundPairings = new List<Pairing> ();
-    */
+    
     List<string> Tiebreakers = new List<string>(); //to take from Settings
     List<string> EndTiebreakers = new List<string>(); //Final round only
       public TournamentBoss()
