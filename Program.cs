@@ -7,6 +7,7 @@ namespace Miasma
     class Program
     {
         public static TournamentBoss tb;
+        public static int startRound = 1;
 
         static void Main(string[] args)
         {
@@ -30,7 +31,6 @@ namespace Miasma
             var str = Marshal.PtrToStringUTF8(strPtr);
             Console.WriteLine(str);
             HelloDim(1);
-            ZipFile.ExtractToDirectory("allworld_lp.zip","Data");
             */
         }
 
@@ -48,7 +48,14 @@ namespace Miasma
             tb = new TournamentBoss();
             bool newT = tb.GenerateTemplateInputFile();
             if(newT == false)   RestoreTournament(true);
-            int startRound = 1;
+            Console.WriteLine("Do you need to download the EGF Rating List? (yes / no)");
+            if (Console.ReadLine().ToUpper().StartsWith("Y"))
+            tb.DownloadAllWorld();           
+            // ZipFile.ExtractToDirectory("allworld_lp.zip","Data");
+    
+            tb.GeneratePlayers(); 
+            tb.ReadPlayers(true,true);
+            //tb.SortField(true);
         }
 
         static void RestoreTournament(bool redirection=false)
