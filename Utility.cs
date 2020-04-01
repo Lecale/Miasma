@@ -7,10 +7,10 @@ namespace Miasma
 	public class Utility
 	{
 		private Random r;
-		private string[] fn = {"Al","Bob","Cal","Dar","Eoin","Fra","Ger","Hal","Io","Jo","Ken","Lor","Meg","Nim","Olli","Peg","Rach","Sue","Tony","Unt"};
+		private string[] fn = {"Alison","Bob","Calum","Darren","Eoin","Fra","Ginger","Hal","Irina","Jo","Ken","Lucian","Meghan","Nicky","Olli","Peg","Rach","Sue","Tony","Unt"};
 		private string[] pre = {"O'","Mc","Ker","Ze","Van","Herr","Mac"};
-		private string[] mid = {"Trah","Row","Land","Sea","Flack","Black","Whit","Red","Ash","Round","Tri","Green"};
-		private string[] end = {"better","lower","water","later","son","morn","mane","ston","crake","flute","pie","cake"};
+		private string[] mid = {"Blue","Row","Land","Sea","Flack","Black","Whit","Red","Ash","Round","Tri","Green"};
+		private string[] end = {"better","lower","water","later","son","morn","mane","ston","crake","flute","pie","cake","snorkler","nibbler"};
 
 		public Utility ()
 		{
@@ -79,67 +79,7 @@ namespace Miasma
         //Utility::Search by EGD Pin or Country
         public void egfTextSearchResults(List<string> tokens)
         {
-            Console.WriteLine("Instead of running a tournament");
-            Console.WriteLine("we are going to search the 'egf.txt' file");
-            Console.WriteLine("please enter the relative directory path for the file");
-            int pin = -1;
-            string fN = "";
-            string lN = "";
-            string tmp = "";
-            
-            string dirpath = Console.ReadLine();
-            if(dirpath.StartsWith("\\"))
-                dirpath = Directory.GetCurrentDirectory() + dirpath ;
-            else
-                dirpath = Directory.GetCurrentDirectory() + "\\" + dirpath;
-            try
-            {
-                pin = int.Parse(tokens[0].Trim());
-                Console.WriteLine("searching for egd pin {0}", pin);
-            }
-            catch
-            {
-                fN = tokens[0].ToLower().Trim(); lN = tokens[1].ToLower().Trim();
-                Console.WriteLine("searching for string {0} , {1}", fN, lN);
-            }
-            Console.WriteLine(pin);
-            int Matches = 0; int Tries = 0;
-            using (StreamReader sr = new StreamReader(dirpath + "\\egf.txt"))
-            {
-                using (StreamWriter sw = new StreamWriter(dirpath + "\\searchResults.txt"))
-                {
-                    if (pin != -1)
-                    {
-                        while (sr.EndOfStream == false)
-                        {
-                            Tries++;
-                            tmp = sr.ReadLine();
-                            if (tmp.Contains(pin.ToString()))
-                            {
-                                sw.WriteLine(tmp);
-                                Matches++;
-                            }
-                        }
-                        sw.Flush();
-                    }
-                    else
-                    {
-                        while (sr.EndOfStream == false)
-                        {
-                            Tries++;
-                            tmp = sr.ReadLine().ToLower();
-                            if (tmp.Contains(fN) && tmp.Contains(lN))
-                            {
-                                sw.WriteLine(tmp);
-                                Matches++;
-                            }
-                        }
-                        sw.Flush();
-                    }
-                }
-            }
-            Console.WriteLine("Checked {0} Matches {1}",Tries,Matches);
-            Environment.Exit(0);
+            // this now calls nim script
         }
 	}
 }
