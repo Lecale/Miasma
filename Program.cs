@@ -55,7 +55,7 @@ namespace Miasma
     
             tb.GeneratePlayers(); 
             tb.ReadPlayers(true,true);
-            //tb.SortField(true);
+            tb.SortField(true);
         }
 
         static void RestoreTournament(bool redirection=false)
