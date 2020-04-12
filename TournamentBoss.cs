@@ -289,7 +289,7 @@ namespace Miasma
 		if (init) Player.SortByRating = true;
 		AllPlayers.Sort ();
 		int i = 1;
-		if (init) { //late players get a different Seed because they were late and that is how it goes
+		if (init) { //late players get a different Seeding because they were late, and that is how it goes
 				//top group but for the bye will then be seeded as if in top group
 				//this should not have any negative effect on the pairings though
 			Player.SortByRating = false;
@@ -298,6 +298,232 @@ namespace Miasma
 		}
 	}
   
-  
+  public void MakeDraw(int currentRound = 1)
+	{
+    Console.Clear();
+		Console.WriteLine ("We are ready to make the draw for Round "+currentRound);
+		if (currentRound > 1) 
+    {
+			Console.WriteLine ("Do you want to add a new player to the players list (yes / no)");
+		  string s = Console.ReadLine ();
+		  if (s.ToUpper ().Trim ().StartsWith ("Y")) HandleLatePlayers (currentRound);
+		  Console.WriteLine ("Do you want to update player participation (byes) in the players list (yes / no)");
+		  s = Console.ReadLine ();
+		  if (s.ToUpper ().Trim ().StartsWith ("Y")) {
+        awaitText("After updating the players file type 'done' to continue",true);
+			  ReadByesFromFile (currentRound);
+		  }
+		}
+		int i = -1;	//Handle this later
+		UpdateParticipation (currentRound);
+		if (currentRound == 1)  InitMMS ();
+		else                  SortField ();
+		if (RoundPlayers.Count % 2 == 1) 
+    {
+			i = AssignBye (currentRound);
+			while (i == -1) 
+      {
+				int retry = 2;
+				Console.WriteLine ("No player was found who already had less than " + (retry - 1) + "bye");
+				if (currentRound <= retry)
+					i = AssignBye (currentRound, retry++);
+				else 
+        {
+					i = 100;
+					Console.WriteLine ("Fatal error encountered. Tournament cannot proceed");
+				}
+			}
+    }
+    List<Pairing> RndPairings = new List<Pairing>();
+		Console.WriteLine ("The draw is being made ...");
+    if (PairingStrategy.ToUpper().Equals("SIMPLE"))
+    {
+			DrawMachine1 dm1 = new DrawMachine1(RoundPlayers, AllPairings, nMaxHandicap, HandiAdjust, HandiAboveBar, Verbose);
+      RndPairings = dm1.GetCurrentPairings();
+    }
+    if (PairingStrategy.ToUpper().Equals("FOLD"))
+    {
+			DrawMachine2 dm2 = new DrawMachine2(AllPlayers, AllPairings, currentRound, nMaxHandicap, HandiAdjust, HandiAboveBar, Verbose);
+      RndPairings = dm2.GetCurrentPairings();
+    }
+    if (PairingStrategy.ToUpper().Equals("SPLIT"))
+    {
+      DrawMachine3 dm3 = new DrawMachine3(AllPlayers, AllPairings, currentRound, nMaxHandicap, HandiAdjust, HandiAboveBar, Verbose);
+      RndPairings = dm3.GetCurrentPairings();
+    }
+    if (PairingStrategy.ToUpper().Equals("ADJACENT"))
+    {
+      DrawMachine4 dm4 = new DrawMachine4(AllPlayers, AllPairings, currentRound, nMaxHandicap, HandiAdjust, HandiAboveBar, Verbose);
+      RndPairings = dm4.GetCurrentPairings();
+    }
+		if(Verbose)
+			foreach (Pairing rp in RndPairings)
+        Console.WriteLine(rp.BasicOutput());
+    GenerateRoundResultsFile(currentRound, RndPairings);
+    Console.WriteLine();
+		Console.WriteLine ("The draw is available at Round"+currentRound+"Results.txt");
+    Console.WriteLine("Remember that the draw can be overwritten in the input file");
+    Console.WriteLine("When you are ready to read in the results press Return");
+    string anyKey = Console.ReadLine();
+    if (anyKey.ToUpper().Equals("AUTO"))
+    {
+      Console.WriteLine("Result autogeneration was selected");
+      GenerateResultsForRound(currentRound);
+    }
+  }
+
+  public void InitMMS() 
+	{
+		SortField (true);
+		foreach (Player ap in AllPlayers)
+    {
+			int gap = nTopBar - ap.getERating ();
+		  gap = gap / nGradeWidth;
+			if (gap >= 0 && ap.topBar == false) gap++;
+      ap.setMMS(100 - gap); 
+      ap.setInitMMS(100 - gap);
+		}
+	}
+
+  public void UpdateParticipation(int _rnd)
+	{
+		RoundPlayers = new List<Player> ();
+		foreach (Player p in AllPlayers) {
+			if (p.getParticipation (_rnd - 1))
+				RoundPlayers.Add (p);
+			else
+				p.AssignBye (_rnd);
+		}
+		Console.WriteLine ("The number of players competing in round " + _rnd + " is " + RoundPlayers.Count);
+	}
+  public int AssignBye(int _rnd, int ByeLevel=1)
+	{ 
+		for (int i = RoundPlayers.Count - 1; i >-1; i--) {
+			if (RoundPlayers [i].nBye() < ByeLevel) {
+				Console.WriteLine ("A bye will be assigned to:");
+				Console.WriteLine (RoundPlayers [i].ToString ());
+				RoundPlayers [i].AssignBye (_rnd);
+				RoundPlayers.RemoveAt (i);
+				return i;
+			}
+		}
+			//emergency
+		Console.WriteLine("Strangely, no Candidate for the Bye was found...");
+		return -1;
+	}
+
+public void HandleLatePlayers(int rnd)
+{
+	Console.WriteLine ("Late entrants must be added to the file players.txt");
+	Console.WriteLine ("When ready, press return to proceed");
+	string s = Console.ReadLine ();
+	int before = AllPlayers.Count;
+	ReadPlayers(false); //later true
+	int after = AllPlayers.Count;
+	//init mms and then give byes
+  for (int i = after; i > before; i--)
+  {
+    AllPlayers[i - 1].SetSeed(i);
+		AllPlayers [i - 1].topBar = false; //should already be false?
+    if(TopBar)
+      if (AllPlayers[i - 1].getERating() > nTopBar)
+      {
+        AllPlayers[i - 1].setERating(nTopBar+1);
+      }
+    if(RatingFloor)
+    	if (AllPlayers [i - 1].getERating () < nRatingFloor)
+	    	AllPlayers [i - 1].setERating (nRatingFloor);
+        //set initial mms
+    int gap = nTopBar - AllPlayers[i-1].getERating();
+    gap = gap / nGradeWidth;
+    if (gap >= 0 && AllPlayers[i - 1].topBar == false)  gap++;
+    AllPlayers[i - 1].setInitMMS(100 - gap);
+    //assign bye
+		for (int j = 1; j < rnd; j++) 
+			AllPlayers [i - 1].AssignBye (j);
+		string hlpDebug = "";
+		for (int k = 0; k < nRounds; k++)
+			if (AllPlayers [i - 1].getParticipation (k))
+				hlpDebug += (k + 1) + " ";
+		Console.WriteLine (AllPlayers [i - 1].ToString () + " plays in "+ hlpDebug);
+  }
+	GenerateStore (); //Else seeding is not recorded and a bug appears
+	SortField ();
+}
+
+public void ReadByesFromFile(int nextRound)
+{
+			//read players file
+			//if player already registered
+			//check if his participation changed
+	string tLn = "";
+	string fin = tourDirectory + "players.txt";
+	using (StreamReader reader = new StreamReader (fin)) {
+		for (int i = 0; i < 6; i++) tLn = reader.ReadLine(); //trip through headers
+		while ((tLn = reader.ReadLine ()) != null) 
+    {
+		  String[] split = tLn.Split(new char[] {',','\t'});
+			try {
+				int pine = int.Parse (split [0]);
+				int rats = int.Parse (split [2]);
+				bool[] bull = new bool[nRounds]; //not set via input file
+				for(int k=0; k<bull.Length; k++)  bull[k]=true;
+        if(split.Length > 6)
+				  for (int i = 6; i < split.Length; i++) {
+						if (split [i].Equals ("") == false) {
+							try{
+								int byeRound = int.Parse(split[i].Trim());
+								if(byeRound > nRounds){
+									Console.WriteLine("A bye cannot be allocated for a round which does not exist");
+									Console.WriteLine(tLn);
+								}
+								else
+									bull[byeRound-1]=false; //0 based
+						  }
+							catch(Exception e){Console.WriteLine(e.Message);}
+						}
+					}
+					Player j = new Player (pine, split [1], rats, split [3], split [4],  bull, split[5]);
+					if (AllPlayers.Contains (j) == true) {
+						for(int ap = 0; ap<AllPlayers.Count; ap++)
+							if(j.Equals(AllPlayers[ap]))
+								for(int i2=nextRound-1; i2<nRounds; i2++) //0 based
+									AllPlayers[ap].SetParticipation(i2, bull[i2]);
+					}
+				} catch (Exception e) {
+					Console.WriteLine ("An exception was encountered in ReadByesFromFile" + e.Message);
+					Console.WriteLine (tLn);
+				}
+			}
+		}
+  }
+
+public void GenerateResultsForRound(int rnd)
+{ 
+  Utility u = new Utility();
+  u.EnterResults(tourDirectory, rnd);
+}
+
+public void GenerateRoundResultsFile(int rnd, List<Pairing> ps)
+{
+	string fOut = tourDirectory + "Round" + rnd + "Results.txt";
+  using (StreamWriter riter = new StreamWriter(fOut))
+  {
+    riter.WriteLine("Results of Round " + rnd);
+    riter.WriteLine("Bd\twhite\t:\tblack");
+		int count = 0;
+    foreach (Pairing p in ps)
+      riter.WriteLine(++count + "\t" + p.ToFile());
+  }
+}
+
+public void GenerateStore()
+{	
+  string fOut = tourDirectory + "Init.txt";
+	using (StreamWriter riter = new StreamWriter(fOut))
+		foreach (Player p in AllPlayers)
+			riter.WriteLine(p.ToStore());
+}
+
   }
 }
