@@ -525,5 +525,71 @@ public void GenerateStore()
 			riter.WriteLine(p.ToStore());
 }
 
+public void previewFloor(bool SetFloor =  false)
+{
+  if (RatingFloor)
+  {
+    int tCount = 0;
+    foreach (Player p in AllPlayers)
+      if (p.getRating() < nRatingFloor)
+      {
+        Console.WriteLine(p.getName() + " " + p.getRating());
+        tCount++;
+      }
+    Console.WriteLine("Provisionally " + tCount + " in bottom group");
+  if (SetFloor)
+  {
+    Console.WriteLine("Apply this setting (yes / no )");
+    if (Console.ReadLine().ToUpper().StartsWith("Y"))
+      foreach (Player pete in AllPlayers)
+        if (nRatingFloor > pete.getRating())
+          pete.setERating(nRatingFloor);
+    else
+    {
+      Console.WriteLine("Enter a new value for the Rating Floor");
+      nRatingFloor = int.Parse(Console.ReadLine().Trim());
+      previewFloor(true);
+    }
+  }
+}
+}
+public void previewTopBar(bool SetBar = false)
+{
+            if (TopBar)
+            {
+                int tCount = 0;
+                foreach (Player peter in AllPlayers)
+                {
+                    if (peter.getRating() > nTopBar && peter.nBye() == 0)
+                    {
+                        Console.WriteLine(peter.getName() + " " + peter.getRating());
+                        tCount++;
+                    }
+                }
+                Console.WriteLine("Provisionally " + tCount + " in top group");
+                if (SetBar)
+                {
+                    Console.WriteLine("Apply this setting (yes / no )");
+                    if (Console.ReadLine().ToUpper().StartsWith("Y"))
+                    {
+                        foreach (Player pete in AllPlayers)
+                        {
+                            if (nTopBar < pete.getRating() && pete.nBye() == 0)
+                            {
+                                pete.topBar = true;
+                                pete.setERating(nTopBar+1);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Enter a new value for the Rating of the Top Bar");
+                        nTopBar = int.Parse(Console.ReadLine().Trim());
+                        previewTopBar(true);
+                    }
+                }
+            }
+		}
+
   }
 }

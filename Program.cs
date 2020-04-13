@@ -56,6 +56,12 @@ namespace Miasma
             tb.GeneratePlayers(); 
             tb.ReadPlayers(true,true);
             tb.SortField(true);
+            Console.Clear();
+			Console.WriteLine("Now please complete your data in the Settings File.");
+            awaitText("When you have finished type 'done'", true, "done");
+            tb.ReadSettings();
+            tb.previewTopBar(true);
+            tb.previewFloor(true);
         }
 
         static void RestoreTournament(bool redirection=false)
@@ -74,6 +80,17 @@ namespace Miasma
         }
         return 0;
     }
+    public static void awaitText(string instruction, bool clearConsole = true, string keyPhrase = "done")
+        {
+            bool awaiting = true;
+            while (awaiting)
+            {
+                Console.WriteLine(instruction);
+                if (keyPhrase.ToLower().Equals(Console.ReadLine()))
+                    awaiting = false;
+            }
+            if (clearConsole) Console.Clear();
+        }
 }
 
 }
