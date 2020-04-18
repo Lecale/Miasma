@@ -555,14 +555,14 @@ public void previewFloor(bool SetFloor =  false)
 }
 public void previewTopBar(bool SetBar = false)
 {
-            if (TopBar)
-            {
-                int tCount = 0;
-                foreach (Player peter in AllPlayers)
-                {
-                    if (peter.getRating() > nTopBar && peter.nBye() == 0)
-                    {
-                        Console.WriteLine(peter.getName() + " " + peter.getRating());
+  if (TopBar)
+  {
+    int tCount = 0;
+    foreach (Player peter in AllPlayers)
+    {
+      if (peter.getRating() > nTopBar && peter.nBye() == 0)
+      {
+        Console.WriteLine(peter.getName() + " " + peter.getRating());
                         tCount++;
                     }
                 }
@@ -590,6 +590,292 @@ public void previewTopBar(bool SetBar = false)
                 }
             }
 		}
+
+public void ReadResults(int rnd)
+{
+	List<Pairing> actualPairs = new List<Pairing> ();
+	char[] c = { '\t','\v'};
+	char[] c1 = { '(',')','?'};
+	int[] LUT = new int[AllPlayers.Count];
+	int[] CNT = new int[AllPlayers.Count];
+  for (int i = 0; i < AllPlayers.Count; i++){
+    if(Verbose) Console.WriteLine("ReadResults()i:" + i + ":S:" + AllPlayers[i].Seed);
+    LUT[AllPlayers[i].Seed - 1] = i;
+  }
+  using (StreamReader sr = new StreamReader(tourDirectory + "Round" + rnd + "Results.txt"))
+  {
+		sr.ReadLine (); sr.ReadLine ();
+		string s;
+		while (sr.EndOfStream == false) {
+			try{
+				s = sr.ReadLine().Trim (); }
+			catch{ s = "";
+			}
+			if (s.Length >2 ) {	
+				string[] split = s.Split (c);
+				string[] split2 = split [1].Split (c1);
+				int white = int.Parse (split2 [1]) -1;
+				split2 = split [3].Split (c1);
+				int black = int.Parse (split2 [1]) -1;
+				int handicap = int.Parse (split [4].Replace ("h", ""));
+				int result = 0;
+        bool validResult = false;
+        if (split[2].Equals("1:0")) { result = 1; validResult = true; }
+        if (split [2].Equals ("0:1")) { result = 2; validResult = true; }
+        if (split [2].Equals ("0.5:0.5")) { result = 3; validResult = true; }
+        if (split [2].Equals ("0:0")) { result = 7; validResult = true; }
+        if (validResult == false)
+        {
+          Console.WriteLine("The following result could not be processed.");
+          Console.WriteLine(s);
+          Console.WriteLine("You MUST choose one of these 4 options");
+          Console.WriteLine("Type '1' for  1:0");
+          Console.WriteLine("Type '2' for  0:1");
+          Console.WriteLine("Type '3' for  0.5:0.5");
+          Console.WriteLine("Type '7' for  0:0");
+          result = int.Parse(Console.ReadLine());
+        }
+				if(Verbose) Console.WriteLine("Read Pairing: " + AllPlayers[LUT[white]].Seed + ":" + AllPlayers[LUT[black]].Seed);
+				Pairing p = new Pairing (AllPlayers [LUT [white]], AllPlayers [LUT [black]], handicap, result);
+				CNT [LUT [white]]++;
+				CNT [LUT [black]]++;
+				if (actualPairs.Contains (p) == false)
+					if (CNT [LUT [white]] == 1 && CNT [LUT [black]] == 1)
+						actualPairs.Add (p);
+					else
+						throw new Exception ("A player played more than one game in this round.");
+				else
+					Console.WriteLine ("A duplicate pairing result was detected " + p.ToFile ());
+			}
+		}
+				//and if we did not hit an exception
+		Console.WriteLine("Finished reading in results for Round " + rnd);
+		RoundPairings = actualPairs;
+    AllPairings.AddRange(actualPairs);
+  }
+}
+
+//It should be possible to reverse Byes using this method
+	public void ProcessResults(int rnd)
+  {
+    if(rnd == 1) GenerateStore();
+		Console.WriteLine ("Processing Results: rnd " + rnd + " pairings " + RoundPairings.Count);
+		//lookuptable
+		foreach (Pairing p in RoundPairings) {
+			if(p.white.getParticipation(rnd-1)==false) 
+				Console.WriteLine("The following was originally assigned a bye:" + p.white.getName());
+			if(p.black.getParticipation(rnd-1)==false) 
+				Console.WriteLine("The following was originally assigned a bye:" + p.black.getName());
+			p.white.setResult (rnd, p.black.Seed, p.WhiteScore (), p.GetHandi (), 1);
+			p.black.setResult (rnd, p.white.Seed, p.BlackScore (), p.GetHandi (), 0);
+			if(Verbose)	Console.WriteLine("W" + p.white.Seed + ": B " + p.black.Seed);
+		}
+		//now check for maladjusted bye
+		foreach (Player ap in AllPlayers) {
+      if (ap.getOpponent(rnd - 1) == 0)
+        if (ap.getResult(rnd - 1) != 0.5)  
+        {
+          Console.WriteLine("Assigning a bye to " + ap.getName());
+          ap.AssignBye(rnd);//AssignBye adjusts the rnd number
+        }
+			}
+		}
+
+
+//Should have some if SOS if MOS if SODOS logic
+public void UpdateTiebreaks(int rnd)
+{
+  int[] lookUp = new int[AllPlayers.Count]; //yuck
+  for (int i = 0; i < AllPlayers.Count; i++)
+    lookUp[AllPlayers[i].Seed - 1] = i;
+  foreach (Player ap in AllPlayers)
+  {
+    float _SOS = 0;
+    float _MOS = 0; //do not calculate if rnd <3
+    float _SODOS = 0;
+    float maxSOS = -999;
+    float minSOS = 999;
+    //to add _SOR , SODOR
+
+    //find actual games played from participation
+    int nGame = 0;
+		int dbg = -1;
+    for (int i = 0; i < rnd; i++)
+    {
+			dbg = i;
+      try
+      {
+        if (ap.getParticipation(i) == true)
+        {
+          nGame++;
+          int op = ap.getOpponent(i) -1; 
+					float f = AllPlayers[lookUp[op]].getMMS() ;
+					f = f + ap.getAdjHandi(i);
+          _SOS += f;
+          _SODOS += (f * ap.getResult(i));
+          if (f > maxSOS)
+            maxSOS = f;
+          if (f < minSOS)
+            minSOS = f;
+        }
+        else
+        {
+					if(Verbose) Console.WriteLine("a bye detected for " +ap.Seed + " in round "+i);
+        }
+      }
+      catch (Exception e) 
+      {
+				Console.WriteLine("rnd:" + dbg + " " + e.Message);
+        Console.WriteLine("Seed was " + ap.Seed);
+        for (int ie = 0; ie < rnd; ie++ )
+          Console.WriteLine("Opponent " + ie + " was " + ap.getOpponent(ie));
+      }
+    }
+		float _score = ap.getScore (rnd);
+
+		if (nGame == 0)
+			_SOS = ap.getMMS() * rnd; //used to be initMMS();
+    if (nGame < rnd)
+    {
+			if (nGame != 0) 
+      {
+			  _SOS = _SOS * rnd / nGame;
+        if (_score != 0.5f * (float)(rnd - nGame))
+        {
+          _SODOS = _SODOS * (_score / (_score - (0.5f * (float)(rnd - nGame))));
+        }
+        else
+        {
+          _SODOS = 0.5f * _SOS / (rnd); // assign half mean SOS
+        }
+			}
+      else
+      {
+				_SODOS = 0.5f * _SOS / (rnd);
+			}
+    }
+            
+		if (rnd > 2)
+			_MOS = _SOS - maxSOS - minSOS;
+		else
+			_MOS = _SOS; //maybe this is normal ??
+    
+    ap.SOS = _SOS;
+    ap.MOS = _MOS;
+    ap.SODOS = _SODOS;
+    if (_score == 0 || _SODOS == 0)
+    { ap.MDOS = 0;}
+    else
+    { ap.MDOS = _SODOS / _score; }                                    
+  }
+  // now that all players are updated, we can calculate SOSOS 
+  if (Tiebreakers.Contains("SOSOS") || EndTiebreakers.Contains("SOSOS"))
+  {//if we have to             
+    foreach (Player ap in AllPlayers)
+    {
+      float _SOSOS = 0;
+      int nGame = 0;
+      for (int i = 0; i < rnd; i++)
+      {
+        try
+        {
+          if (ap.getParticipation(i) == true)
+          {
+            nGame++;
+            int op = ap.getOpponent(i) - 1;
+                                //float f = AllPlayers[lookUp[op]].getMMS();
+                                //f = f + ap.getAdjHandi(i);
+                                //_SOS += f;
+            _SOSOS += AllPlayers[lookUp[op]].SOS;
+          }
+        }
+      catch {} //would be really odd to have an exception here
+    }
+    if (nGame < rnd)
+    {
+      if (nGame != 0)
+      {
+        _SOSOS = _SOSOS * rnd / nGame;
+      }
+      else
+      {
+        _SOSOS = rnd * ap.SOS; 
+      }
+    }
+    ap.SOSOS = _SOSOS;
+  }
+}
+}
+
+public void GenerateStandingsfile(int rnd)
+{
+  if (File.Exists(tourDirectory + "Round" + rnd + "Standings.txt"))
+  {
+    Console.WriteLine("Warning - Overwriting Round" + rnd + "Standings.txt");
+    File.Delete(tourDirectory + "Round" + rnd + "Standings.txt");
+  }
+  string hdr = "Pl\tName\tRank\tRating\tMMS\tWins\t";
+  for (int i = 0; i < rnd; i++)
+    hdr = hdr + (i+1) + "\t";
+  foreach(string tb in Tiebreakers)
+    hdr = hdr + tb + "\t";
+
+  using (StreamWriter sw = new StreamWriter(tourDirectory + "Round" + rnd + "Standings.txt"))
+  {
+    sw.WriteLine("Tournament: " + TournamentName + " Round: " + rnd);
+    sw.WriteLine("");
+    sw.WriteLine(hdr);
+    int cnt = 1; 
+    string t = "\t";
+    foreach (Player ap in AllPlayers)
+    {
+			sw.WriteLine(cnt++ + t + ap.ToStanding(rnd) + TiebreakerOut(ap)); 
+    }
+  }
+	VerboseStandings (rnd); //To be made optional ?
+}
+
+private string TiebreakerOut(Player p)
+{
+	string s = "";
+	foreach (string tb in Tiebreakers) {
+		if (tb.Equals ("SOS")) s += (p.SOS + "\t");
+		if (tb.Equals ("SODOS")) s += (p.SODOS + "\t");
+    if (tb.Equals("MOS")) s += (p.MOS + "\t");
+    if (tb.Equals("MDOS"))  s += (p.MDOS + "\t");
+    if (tb.Equals("SOSOS"))  s += (p.SOSOS + "\t");
+    if (tb.Equals("SOR"))  s += (p.SOR + "\t");
+    if (tb.Equals("SODOR"))  s += (p.SODOR + "\t");
+  }
+return s;
+}
+
+//Can this method just be junked ?
+public void VerboseStandings(int rnd)
+		{
+			string hdr = "Pl\tName\tRank\tRating\tMMS\tWins\t";
+			for (int i = 0; i < rnd; i++)
+				hdr = hdr + (i+1) + "\t";
+			foreach(string tb in Tiebreakers)
+				hdr = hdr + tb + "\t";
+			if (rnd == 0)
+			    if (File.Exists (tourDirectory + "RoundStandings.txt"))
+				    File.Delete (tourDirectory + "RoundStandings.txt");
+			using (StreamWriter sw = new StreamWriter (tourDirectory + "RoundStandings.txt", true)) {
+				sw.WriteLine ("Standings for Round " + rnd);
+				sw.WriteLine("");
+				sw.WriteLine(hdr);
+				int cnt = 1;
+				foreach (Player ap in AllPlayers)
+				{
+					sw.WriteLine(cnt++ + "\t" + ap.ToStandingVerbose(rnd) + TiebreakerOut(ap)); 
+				}
+				sw.WriteLine("");
+			}
+
+		}
+
+
 
   }
 }

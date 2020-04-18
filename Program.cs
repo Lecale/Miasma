@@ -62,6 +62,17 @@ namespace Miasma
             tb.ReadSettings();
             tb.previewTopBar(true);
             tb.previewFloor(true);
+            int rounds = tb.nRounds;
+			//now we can start the tournament
+            for (int i = startRound; i < rounds + 1; i++)
+            {
+                tb.MakeDraw(i);
+                tb.ReadResults(i);
+                tb.ProcessResults(i);
+                tb.UpdateTiebreaks(i);
+                tb.SortField();
+                tb.GenerateStandingsfile(i);
+            }
         }
 
         static void RestoreTournament(bool redirection=false)
