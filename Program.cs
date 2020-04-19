@@ -73,6 +73,13 @@ namespace Miasma
                 tb.SortField();
                 tb.GenerateStandingsfile(i);
             }
+            tb.GenerateFinalStandingsFile(rounds);  //Experimental ! ?
+            tb.GenerateEGFExport();
+            tb.ConvertStandingsToHTML(rounds);
+
+			Console.Clear();
+			Console.WriteLine("The tournament has ended.");
+            Console.WriteLine("We hope you enjoyed using Miasma to make the pairings.");
         }
 
         static void RestoreTournament(bool redirection=false)
